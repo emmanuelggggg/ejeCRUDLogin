@@ -1,0 +1,252 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- vue cdn -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <!-- vue axios cdn -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.js" integrity="sha512-bYkaBWaFtfPIMYt9+CX/4DWgfrjcHinjerNYxQmQx1VM76eUsPPKZa5zWV8KksVkBF/DaHSADCwil2J5Uq2ctA==" crossorigin="anonymous"></script>
+    <!-- google font -->
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&display=swap" rel="stylesheet">
+    <!-- font  -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.1/css/all.css" integrity="sha384-vp86vTRFVJgpjF9jiIGPEEqYqlDwgyBgEF109VFjmqGmIY/Y4HV4d3Gp2irVfcrp" crossorigin="anonymous">
+    <!-- css -->
+    <link rel="stylesheet" href="css/style.css">
+    <title>FakeFLix</title>
+</head>
+<body>
+
+    <div id="root">
+        
+        <nav>
+            <a class="big-logo" href="javascript:history.go(0)"><img src="img/fakeFlix.png" width="100" height="400" alt="fakeFlix image"></a>
+            <a class="small-logo" href="javascript:history.go(0)"><img src="img/fakeFlix.png"  alt="Getflix image"></a>
+            <div class="searchbar">
+                <!-- selección géneros de películas -->
+                 
+                <div class="nav-item" v-if="movies.length > 0">
+                    <select id="genre-movies-list" v-model="selectedMovieGenre">
+                        <option value="selectedMovie" disabled selected>Selecciona género de Pelicula</option>
+                        <option value="all">Todos</option>
+                        <option v-for="genre in genresMovies" :value="genre.name">{{ genre.name }}</option>
+                    </select>
+                </div>                    
+
+                <!-- seleccionar géneros de serie Tv -->
+                <div class="nav-item" v-if="series.length > 0">
+                    <select id="genre-series-list" v-model="selectedSerieGenre">
+                        <option value="selectedSerie" disabled selected>Selecciona género de Serie TV</option>
+                        <option value="all" selected>Todos</option>
+                        <option v-for="genre in genresSeries" :value="genre.name">{{ genre.name }}</option>
+                    </select>
+                </div>    
+
+                <!-- barra de busqueda -->
+                <div class="nav-item">
+                    <input type="text" placeholder="Búsqueda de películas y series de TV" autofocus v-model="searchQuery" @keydown.enter="getTitles">
+                    <i class="fas fa-search" @click="getTitles"></i>
+                </div>      
+            </div>
+        </nav>
+
+        <main>
+
+            <!-- cards de peliculas populares -->
+            <h2 v-if="movies.length == 0 && series.length == 0 && renderMessage == false" class="movies-title">Peliculas Populares</h2>
+            <div class="wrapper" v-if="movies.length == 0 && series.length == 0 && renderMessage == false">
+                <div class="card" v-for="(movie, index) in popularMovies">
+                    <img class="poster" :src="getImages(movie)" :alt="movie.title">
+                    <div class="overlay">
+                        <div class="title">Titolo: <span class="description">{{ movie.title }}</span></div>
+                        <div v-if="movie.original_title != movie.title" class="title">Titolo Originale: <span class="description">{{ movie.original_title }}</span></div>
+
+                        <!-- banderas de idioma original -->
+                        <div class="title">Lingua Originale: 
+                            <span class="description">
+                                <img v-if="flags.includes(movie.original_language)" :src="'img/' + movie.original_language + '.svg'" alt="Bandiera" class="flag">
+                                <span v-else class="description">{{ movie.original_language}}</span>
+                            </span>
+                        </div>
+
+                        <!-- voto con estrellas -->
+                        <div class="title">
+                            Voto: 
+                            <span>
+                                <i v-for="number in getVote(movie.vote_average)" class="fas fa-star"></i>
+                                <i v-for="number in 5 - getVote(movie.vote_average)" class="far fa-star"></i>
+                            </span>
+                        </div>
+
+                        <!-- genero -->
+                        <div class="title">Generi: 
+                            <span class="description">{{ movie.genre_ids.join(", ") }}</span>
+                        </div>
+
+                        <!-- actores -->
+                        <div v-if="movie.castList.length > 0" class="title">Attori: 
+                            <span class="description">{{ movie.castList.join(", ") }}</span>
+                        </div>
+
+                        <!-- trama -->
+                        <div v-if="movie.overview != ''" class="title">Overview: 
+                            <span class="description overview">{{ movie.overview }}</span>
+                        </div>                     
+                    </div>
+                </div>
+            </div>
+            <!-- /cards de peliculas populares -->
+
+            <!-- cards de serie tv populares -->
+            <h2 v-if="movies.length == 0 && series.length == 0 && renderMessage == false" class="series-title">Serie TV Populares</h2>
+            <div class="wrapper" v-if="movies.length == 0 && series.length == 0 && renderMessage == false" >
+                <div class="card" v-for="(serie, index) in popularSeries">
+                    <img class="poster" :src="getImages(serie)" :alt="serie.title">
+                    <div class="overlay">
+                        <div class="title">Titolo: <span class="description">{{ serie.name }}</span></div>
+                        <div v-if="serie.original_name != serie.name" class="title">Titolo Originale: <span class="description">{{ serie.original_name }}</span></div>
+
+                        <!-- banderas de idioma original -->
+                        <div class="title">Lingua Originale: 
+                            <span class="description">
+                                <img v-if="flags.includes(serie.original_language)" :src="'img/' + serie.original_language + '.svg'" alt="Bandiera" class="flag">
+                                <span v-else class="description">{{ serie.original_language}}</span>
+                            </span>
+                        </div>
+
+                        <!-- voto con estrellas -->
+                        <div class="title">
+                            Voto: 
+                            <span>
+                                <i v-for="number in getVote(serie.vote_average)" class="fas fa-star"></i>
+                                <i v-for="number in 5 - getVote(serie.vote_average)" class="far fa-star"></i>
+                            </span>
+                        </div>
+
+                        <!-- genero -->
+                        <div class="title">Generi: 
+                            <span class="description">{{ serie.genre_ids.join(", ") }}</span>
+                        </div>
+
+                        <!-- actores -->
+                        <div v-if="serie.castList.length > 0" class="title">Attori: 
+                            <span class="description">{{ serie.castList.join(", ") }}</span>
+                        </div>
+
+                        <!-- trama -->
+                        <div v-if="serie.overview != ''" class="title">Overview: 
+                            <span class="description overview">{{ serie.overview }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /cards de serie tv populares-->
+            
+            <!-- cards film -->
+            <h2 v-if="movies.length > 0" class="movies-title">Resultados de búsqueda...</h2>
+            <div class="wrapper" v-if="movies.length > 0">
+                <div class="card" v-if="movie.genre_ids.includes(selectedMovieGenre) || selectedMovieGenre == 'all' || selectedMovieGenre == 'selectedMovie'" v-for="(movie, index) in movies">
+                    <img class="poster" :src="getImages(movie)" :alt="movie.title">
+                    <div class="overlay">
+                        <div class="title">Titolo: <span class="description">{{ movie.title }}</span></div>
+                        <div v-if="movie.original_title != movie.title" class="title">Titolo Originale: <span class="description">{{ movie.original_title }}</span></div>
+
+                        <!-- bandera de idioma original -->
+                        <div class="title">Lingua Originale: 
+                            <span class="description">
+                                <img v-if="flags.includes(movie.original_language)" :src="'img/' + movie.original_language + '.svg'" alt="Bandiera" class="flag">
+                                <span v-else class="description">{{ movie.original_language}}</span>
+                            </span>
+                        </div>
+
+                        <!-- voto con estrellas -->
+                        <div class="title">
+                            Voto: 
+                            <span>
+                                <i v-for="number in getVote(movie.vote_average)" class="fas fa-star"></i>
+                                <i v-for="number in 5 - getVote(movie.vote_average)" class="far fa-star"></i>
+                            </span>
+                        </div>
+
+                        <!-- genero -->
+                        <div class="title">Generi: 
+                            <span class="description">{{ movie.genre_ids.join(", ") }}</span>
+                        </div>
+
+                        <!-- actores -->
+                        <div v-if="movie.castList.length > 0" class="title">Attori: 
+                            <span class="description">{{ movie.castList.join(", ") }}</span>
+                        </div>
+
+                        <!-- trama -->
+                        <div v-if="movie.overview != ''" class="title">Overview: 
+                            <span class="description overview">{{ movie.overview }}</span>
+                        </div>                     
+                    </div>
+                </div>
+            </div>
+            <!-- /cards de peliculas-->
+
+
+            <!-- cards de serie tv -->
+            <h2 v-if="series.length > 0" class="series-title">Resultados de búsqueda de Serie TV</h2>
+            <div class="wrapper" v-if="series.length > 0" >
+                <div v-if="serie.genre_ids.includes(selectedSerieGenre) || selectedSerieGenre == 'all' || selectedSerieGenre == 'selectedSerie'" class="card" v-for="serie in series">
+                    <img class="poster" :src="getImages(serie)" :alt="serie.title">
+                    <div class="overlay">
+                        <div class="title">Titolo: <span class="description">{{ serie.name }}</span></div>
+                        <div v-if="serie.original_name != serie.name" class="title">Titolo Originale: <span class="description">{{ serie.original_name }}</span></div>
+
+                        <!-- bandera de idioma original -->
+                        <div class="title">Lingua Originale: 
+                            <span class="description">
+                                <img v-if="flags.includes(serie.original_language)" :src="'img/' + serie.original_language + '.svg'" alt="Bandiera" class="flag">
+                                <span v-else class="description">{{ serie.original_language}}</span>
+                            </span>
+                        </div>
+
+                        <!-- voto con estrellas -->
+                        <div class="title">
+                            Voto: 
+                            <span>
+                                <i v-for="number in getVote(serie.vote_average)" class="fas fa-star"></i>
+                                <i v-for="number in 5 - getVote(serie.vote_average)" class="far fa-star"></i>
+                            </span>
+                        </div>
+
+                        <!-- genero -->
+                        <div class="title">Generi: 
+                            <span class="description">{{ serie.genre_ids.join(", ") }}</span>
+                        </div>
+
+                        <!-- actores -->
+                        <div v-if="serie.castList.length > 0" class="title">Attori: 
+                            <span class="description">{{ serie.castList.join(", ") }}</span>
+                        </div>
+
+                        <!-- trama -->
+                        <div v-if="serie.overview != ''" class="title">Overview: 
+                            <span class="description overview">{{ serie.overview }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /cards de serie tv -->
+
+            <!--  warning-advertencia de busqueda-->
+           
+            <div class="warning" v-if="movies.length == 0 && series.length == 0 && renderMessage == true">
+                <h2>No se encontraron resultados de la busqueda</h2>
+            </div>
+            
+        </main>
+        
+    </div>
+
+    <!-- javaScript -->
+    <script src="js/script.js"></script>
+
+</body>
+</html>

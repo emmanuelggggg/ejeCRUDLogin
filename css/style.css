@@ -1,0 +1,246 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    outline: none;
+    list-style: none;
+    font-family: 'Lato', sans-serif;
+}
+
+#root {
+    width: 100%;
+    height: 100vh;
+}
+
+/* NAV */
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    height: 70px;
+    padding: 20px 30px;
+    background-color: #040404;
+}
+
+/* logo */
+nav > a {
+    height: 100%;
+}
+
+nav img {
+    height: 100%;
+}
+
+nav .small-logo {
+    display: none;
+}
+
+/* /logo */
+
+/* searchbar */
+
+nav .searchbar  {
+    display: flex;
+    align-items: center;
+}
+
+nav .searchbar .nav-item select {
+    padding: 4px 10px;
+    margin: 0 10px;
+    border: 1px solid rgb(144, 24, 24);
+    border-radius: 5px;
+}
+
+nav .searchbar .nav-item input {
+    padding: 5px 10px;
+    margin-right: 10px;
+    margin-left: 30px;
+    border: 1px solid rgb(144, 24, 24);
+    border-radius: 5px;
+}
+
+nav .searchbar i {
+    color: #fff;
+    cursor: pointer;
+}
+
+nav .searchbar i:hover {
+    color: #b6b6b6;
+}
+
+/* /searchbar */
+
+/* /NAV */
+
+/* MAIN */
+
+main {
+    width: 100%;
+    height: calc(100% - 70px);
+    padding: 30px;
+    background-color: #141414;
+    overflow-y: auto;
+}
+
+.wrapper {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* cards */
+
+.movies-title {
+    max-width: 400px;
+    margin: 0 auto;
+    margin-bottom: 20px;
+    padding-bottom: 5px;
+    text-align: center;
+    border-bottom: 2px solid #DB202C;
+    color: #fff;
+}
+
+.series-title {
+    max-width: 400px;
+    margin: 0 auto;
+    margin-top: 40px;
+    margin-bottom: 20px;
+    padding-bottom: 5px;
+    text-align: center;
+    border-bottom: 2px solid red;
+    color: #fff;
+}
+    
+.card {
+    position: relative;
+    width: 342px;
+    margin: 0 10px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+    /* border: 1px solid #fff; */
+    cursor: pointer;
+}
+
+.card .poster {
+    display: block;
+    width: 100%;
+}
+
+.card .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 50px 25px;
+    color: #fff;
+    background-color: black;
+    overflow-y: hidden;
+    opacity: 0;
+}
+
+.card .overlay .title {
+    font-weight: 700;
+    margin-bottom: 5px;
+}
+
+.card .overlay .description {
+    font-weight: 400;
+}
+
+.card .overlay .flag {
+    width: 20px;
+    margin-left: 5px;
+    vertical-align: middle;
+}
+
+.card .overlay .overview {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 8;
+}
+
+.card .overlay i {
+    color: orange;
+}
+
+.card:hover .overlay {
+    opacity: 1;
+}
+
+/* /cards */
+
+/* warning message */
+
+.warning h2 {
+    margin: 0 auto;
+    text-align: center;
+    color: #fff;
+}
+
+/* /warning message */
+
+/* /MAIN */
+
+
+@media screen and (max-width: 992px) {
+
+    nav .big-logo {
+        display: none;
+    }
+
+    nav .small-logo {
+        display: block;
+    }
+}
+
+@media screen and (max-width: 767px) {
+
+    nav {
+        height: 150px;
+    }
+
+    main {
+        height: calc(100% - 150px);
+    }
+
+    nav .searchbar  {
+        display: flex;
+        flex-direction: column-reverse;
+        align-items: flex-end;
+    }
+    
+    nav .searchbar .nav-item input {
+        margin-right: 10px;
+        margin-left: 0;
+        margin-bottom: 10px;
+    }
+
+    nav .searchbar .nav-item select {
+        margin: 0;
+        margin-bottom: 10px;
+    }
+
+    nav .searchbar .nav-item:nth-child(1) select {
+        margin: 0;
+        margin-bottom: 0;
+    }
+
+}
+
+@media screen and (max-width: 480px) {
+
+    .movies-title,
+    .series-title {
+        font-size: 20px;
+    }
+
+}
+
